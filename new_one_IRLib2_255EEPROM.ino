@@ -311,7 +311,7 @@ void loop() {
     case stchannel:
     // Serial.println("stchannel");
    // Serial.println(state);
-      channel();
+      channell();
       state = stSerial;
       break;
 
@@ -1013,7 +1013,8 @@ void Remote()
 
 }
 
-void channel()
+
+void channell()
 {
   if(channel==0)
         {
