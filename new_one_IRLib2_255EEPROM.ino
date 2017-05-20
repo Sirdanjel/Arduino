@@ -419,31 +419,25 @@ void Seriall() {
         byte i = 0;
         int number = 0;
         char Buffer[14];
-        char command[11];
-        char command1[11] = {
-            "aaaaaaaaa"
-        };
-        //
+        char command[11] = {0};
+
         //Serial.println(freeRam());
         //freeRam();
 
         j = Serial.readBytesUntil('\n', Buffer, 14); //pocita pocet prijatych znakov po charakter znak + plny definovany buffer
         //Serial.println(j);
-        while (Buffer[i] != '_') //this part find text part of command
+        for (;Buffer[i] == '_' ||  i > 13; i++) //this part find text part of command
         {
-            command1[i] = Buffer[i];
+            command[i] = Buffer[i];
             //Serial.println(command[i]);
-            i++;
-
         }
 
-        i++;
+        command[i] = '\0';
 
         //command[8]='a';
         //command[9]='a';
         //command[10]='a';
         //command[11]='a';
-        strncpy(command, command1, 11);
         //command[12]='a';
         //command[13]='a';
         // command[14]='a';
@@ -459,7 +453,7 @@ void Seriall() {
         // Serial.println(command);
         // Serial.println(number);
 
-        if (strcmp(command, "setstepaa") == 0) {
+        if (strcmp(command, "setstep") == 0) {
             if (number > 0 && number < 11) {
                 setstep_size[channel] = number;
                 if (channel == 0)
@@ -470,10 +464,10 @@ void Seriall() {
                 Serial.println(number);
             } else
                 Serial.println(F("Nespravna hodnota"));
-        } else if (strcmp(command, "getstepaa") == 0) {
+        } else if (strcmp(command, "getstep") == 0) {
             //Serial.print("Krok je nastaveny na: ");
             Serial.println(setstep_size[channel]);
-        } else if (strcmp(command, "Waaaaaaaa") == 0) {
+        } else if (strcmp(command, "W") == 0) {
             if (number >= 0 && number < 256) {
                 direct = W;
                 setposition[channel] = ((-1) * number);
@@ -484,7 +478,7 @@ void Seriall() {
                 Serial.println(number);
             } else
                 Serial.println(F("Nespravna hodnota"));
-        } else if (strcmp(command, "Eaaaaaaaa") == 0) {
+        } else if (strcmp(command, "E") == 0) {
             if (number >= 0 && number < 256) {
                 direct = E;
                 setposition[channel] = number;
@@ -496,7 +490,7 @@ void Seriall() {
             } else
                 Serial.println(F("Nespravna hodnota"));
 
-        } else if (strcmp(command, "setzeroaa") == 0) {
+        } else if (strcmp(command, "setzero") == 0) {
             positions[channel] = 0;
             setposition[channel] = positions[channel];
             n = 0;
@@ -504,7 +498,7 @@ void Seriall() {
             //EEPROM.update(1,positions);
             Serial.print(F("Pozicia je: "));
             Serial.println(number);
-        } else if (strcmp(command, "setrbutaa") == 0) {
+        } else if (strcmp(command, "setrbut") == 0) {
             if (number > 0 && number < 25) {
                 rbut = (number - 1);
                 //EEPROM.update(0,positions);
@@ -513,7 +507,7 @@ void Seriall() {
                 Serial.println(rbut + 1);
             } else
                 Serial.println(F("Nespravna hodnota"));
-        } else if (strcmp(command, "setchaaaa") == 0) {
+        } else if (strcmp(command, "setch") == 0) {
             if (number > 0 && number < 3) {
                 if (channel != (number - 1)) {
                     button = 3;
@@ -525,7 +519,7 @@ void Seriall() {
                 Serial.println(number);
             } else
                 Serial.println(F("Nespravna hodnota"));
-        } else if (strcmp(command, "setrbutWa") == 0) {
+        } else if (strcmp(command, "setrbutW") == 0) {
             if (number >= 0 && number < 256) {
                 pos[channel][rbut] = (number * -1);
                 if (channel == 0) {
@@ -548,7 +542,7 @@ void Seriall() {
                     Serial.println((EEPROM.read(rbut + 63) * -1));
             }
 
-        } else if (strcmp(command, "setrbutEa") == 0) {
+        } else if (strcmp(command, "setrbutE") == 0) {
             if (number >= 0 && number < 256) {
                 pos[channel][rbut] = number;
                 if (channel == 0) {
@@ -572,9 +566,9 @@ void Seriall() {
             } else
                 Serial.println(F("Nespravna hodnota"));
 
-        } else if (strcmp(command, "getposaaa") == 0) {
+        } else if (strcmp(command, "getpos") == 0) {
             Serial.println(positions[channel]);
-        } else if (strcmp(command, "resetaaaa") == 0) {
+        } else if (strcmp(command, "reset") == 0) {
             button = 8;
         } else {
             Serial.println(F("Nespravnyprikaz"));
