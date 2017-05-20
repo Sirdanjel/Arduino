@@ -83,7 +83,7 @@ int setposition[2] = {
     0,
     0
 };
-byte channal = 0;
+byte channel = 0;
 unsigned long lastDebounceTime = 0;
 unsigned long lastDebounceTime1 = 0;
 unsigned long debounceDelay = 1500;
@@ -136,7 +136,7 @@ enum {
     stStopMotor,
     stRemote,
     stError,
-    stChannal,
+    stchannel,
     stStartMotor
 }
 state = stStartMotor;
@@ -272,7 +272,7 @@ void loop() {
             state = stStopMotorBut;
         //treba to riesit v inom kroku
         //else if(button==3)
-        //state=stChannal;
+        //state=stchannel;
         else if (button == 0)
             state = stStopMotor;
         if (Err == true)
@@ -303,7 +303,7 @@ void loop() {
         // Serial.println(state);
         Remote();
         if (button == 3)
-            state = stChannal;
+            state = stchannel;
         else
             state = stSerial;
         break;
@@ -325,10 +325,10 @@ void loop() {
             state = stRemote;
         break;
 
-    case stChannal:
-        // Serial.println("stChannal");
+    case stchannel:
+        // Serial.println("stchannel");
         // Serial.println(state);
-        Channal();
+        channel();
         state = stSerial;
         break;
 
@@ -340,16 +340,16 @@ void Sensor() {
 
     byte lastsensor_state;
     lastsensor_state = sensor_state;
-    if ((millis() - lastDebounceTime1) > (setstep_size[channal] * 100))
+    if ((millis() - lastDebounceTime1) > (setstep_size[channel] * 100))
         Err = true;
-    if (sensor_state == 1 && digitalRead(sensor[channal]) == LOW) {
+    if (sensor_state == 1 && digitalRead(sensor[channel]) == LOW) {
         stepp++;
         if (stepp > 10) {
             stepp = 0;
             sensor_state = 0;
         }
     }
-    if (sensor_state == 0 && digitalRead(sensor[channal]) == HIGH) {
+    if (sensor_state == 0 && digitalRead(sensor[channel]) == HIGH) {
         stepp++;
         if (stepp > 10) {
             stepp = 0;
@@ -359,20 +359,20 @@ void Sensor() {
     if (sensor_state != lastsensor_state) { // Serial.println(step_size);
         digitalWrite(LED, digitalRead(LED) ^ 1);
         step_size++;
-        if (step_size == setstep_size[channal]) {
+        if (step_size == setstep_size[channel]) {
             lastDebounceTime1 = millis();
             step_size = 0;
             sensor_change = 1;
 
             if (direct == W) {
-                positions[channal]--;
-                n = positions[channal];
-                Serial.println(positions[channal]);
+                positions[channel]--;
+                n = positions[channel];
+                Serial.println(positions[channel]);
             }
             if (direct == E) {
-                positions[channal]++;
-                n = positions[channal];
-                Serial.println(positions[channal]);
+                positions[channel]++;
+                n = positions[channel];
+                Serial.println(positions[channel]);
             }
         }
 
@@ -404,9 +404,9 @@ void StopMotorBut() {
     }*/
 
     if ((button == 5 || button == 6 || button == 7) && (sensor_change == 1)) {
-        digitalWrite(rele1[channal], LOW);
-        digitalWrite(rele2[channal], LOW);
-        setposition[channal] = positions[channal];
+        digitalWrite(rele1[channel], LOW);
+        digitalWrite(rele2[channel], LOW);
+        setposition[channel] = positions[channel];
         rot = false;
         button = 0;
         digitalWrite(LED, LOW);
@@ -461,10 +461,10 @@ void Seriall() {
 
         if (strcmp(command, "setstepaa") == 0) {
             if (number > 0 && number < 11) {
-                setstep_size[channal] = number;
-                if (channal == 0)
+                setstep_size[channel] = number;
+                if (channel == 0)
                     EEPROM.update(STEP, number);
-                else if (channal == 1)
+                else if (channel == 1)
                     EEPROM.update(STEP + 30, number);
                 Serial.print(F("Krok je nastaveny na: "));
                 Serial.println(number);
@@ -472,12 +472,12 @@ void Seriall() {
                 Serial.println(F("Nespravna hodnota"));
         } else if (strcmp(command, "getstepaa") == 0) {
             //Serial.print("Krok je nastaveny na: ");
-            Serial.println(setstep_size[channal]);
+            Serial.println(setstep_size[channel]);
         } else if (strcmp(command, "Waaaaaaaa") == 0) {
             if (number >= 0 && number < 256) {
                 direct = W;
-                setposition[channal] = ((-1) * number);
-                //if(positions[channal]<setposition[channal])
+                setposition[channel] = ((-1) * number);
+                //if(positions[channel]<setposition[channel])
                 direct = E;
                 // Motor1();
                 Serial.print(F("Idem na poziciu W: "));
@@ -487,8 +487,8 @@ void Seriall() {
         } else if (strcmp(command, "Eaaaaaaaa") == 0) {
             if (number >= 0 && number < 256) {
                 direct = E;
-                setposition[channal] = number;
-                //if(positions[channal]>setposition[channal])
+                setposition[channel] = number;
+                //if(positions[channel]>setposition[channel])
                 direct = W;
                 //Motor1();
                 Serial.print(F("Idem na poziciu E: "));
@@ -497,8 +497,8 @@ void Seriall() {
                 Serial.println(F("Nespravna hodnota"));
 
         } else if (strcmp(command, "setzeroaa") == 0) {
-            positions[channal] = 0;
-            setposition[channal] = positions[channal];
+            positions[channel] = 0;
+            setposition[channel] = positions[channel];
             n = 0;
             //EEPROM.update(0,positions);
             //EEPROM.update(1,positions);
@@ -515,9 +515,9 @@ void Seriall() {
                 Serial.println(F("Nespravna hodnota"));
         } else if (strcmp(command, "setchaaaa") == 0) {
             if (number > 0 && number < 3) {
-                if (channal != (number - 1)) {
+                if (channel != (number - 1)) {
                     button = 3;
-                    //Channal();
+                    //channel();
 
                     lastDebounceTime = millis();
                 }
@@ -527,53 +527,53 @@ void Seriall() {
                 Serial.println(F("Nespravna hodnota"));
         } else if (strcmp(command, "setrbutWa") == 0) {
             if (number >= 0 && number < 256) {
-                pos[channal][rbut] = (number * -1);
-                if (channal == 0) {
+                pos[channel][rbut] = (number * -1);
+                if (channel == 0) {
                     EEPROM.update((rbut + 3), number);
                     EEPROM.update((rbut + 33), 0);
-                } else if (channal == 1) {
+                } else if (channel == 1) {
                     EEPROM.update((rbut + 63), number);
                     EEPROM.update((rbut + 93), 0);
                 }
 
                 //EEPROM.update(1,positions);
                 Serial.print(F("Na kanaly.: "));
-                Serial.print(channal + 1);
+                Serial.print(channel + 1);
                 Serial.print(F("tlacidle c: "));
                 Serial.print(rbut + 1);
                 Serial.print(F("je ulozena pozicia: "));
-                if (channal == 0)
+                if (channel == 0)
                     Serial.println((EEPROM.read(rbut + 3) * -1));
-                else if (channal == 1)
+                else if (channel == 1)
                     Serial.println((EEPROM.read(rbut + 63) * -1));
             }
 
         } else if (strcmp(command, "setrbutEa") == 0) {
             if (number >= 0 && number < 256) {
-                pos[channal][rbut] = number;
-                if (channal == 0) {
-                    EEPROM.update((rbut + 33), pos[channal][rbut]);
+                pos[channel][rbut] = number;
+                if (channel == 0) {
+                    EEPROM.update((rbut + 33), pos[channel][rbut]);
                     EEPROM.update((rbut + 3), 0);
-                } else if (channal == 1) {
-                    EEPROM.update((rbut + 93), pos[channal][rbut]);
+                } else if (channel == 1) {
+                    EEPROM.update((rbut + 93), pos[channel][rbut]);
                     EEPROM.update((rbut + 63), 0);
                 }
 
                 //EEPROM.update(1,positions);
                 Serial.print(F("Na kanaly.: "));
-                Serial.print(channal + 1);
+                Serial.print(channel + 1);
                 Serial.print(F("tlacidle c: "));
                 Serial.print(rbut + 1);
                 Serial.print(F("je ulozena pozicia: "));
-                if (channal == 0)
+                if (channel == 0)
                     Serial.println(EEPROM.read(rbut + 33));
-                else if (channal == 1)
+                else if (channel == 1)
                     Serial.println(EEPROM.read(rbut + 93));
             } else
                 Serial.println(F("Nespravna hodnota"));
 
         } else if (strcmp(command, "getposaaa") == 0) {
-            Serial.println(positions[channal]);
+            Serial.println(positions[channel]);
         } else if (strcmp(command, "resetaaaa") == 0) {
             button = 8;
         } else {
@@ -585,14 +585,14 @@ void Seriall() {
 
 void StopMotor() {
 
-    if (positions[channal] == setposition[channal]) {
-        digitalWrite(rele1[channal], LOW);
+    if (positions[channel] == setposition[channel]) {
+        digitalWrite(rele1[channel], LOW);
         rot = false;
         digitalWrite(LED, LOW);
     }
 
-    if (positions[channal] == setposition[channal]) {
-        digitalWrite(rele2[channal], LOW);
+    if (positions[channel] == setposition[channel]) {
+        digitalWrite(rele2[channel], LOW);
         rot = false;
         digitalWrite(LED, LOW);
     }
@@ -600,49 +600,49 @@ void StopMotor() {
 }
 
 void StartMotor() { //Serial.println("StartMotor");
-    if (direct == W && positions[channal] != setposition[channal]) {
-        if (positions[channal] < setposition[channal]) {
-            digitalWrite(rele2[channal], HIGH);
+    if (direct == W && positions[channel] != setposition[channel]) {
+        if (positions[channel] < setposition[channel]) {
+            digitalWrite(rele2[channel], HIGH);
             direct = E;
             lastDebounceTime1 = millis();
             rot = true;
 
         } else
-            digitalWrite(rele1[channal], HIGH);
+            digitalWrite(rele1[channel], HIGH);
         lastDebounceTime1 = millis();
         rot = true;
 
-    } else if (direct == E && positions[channal] != setposition[channal]) {
-        if (positions[channal] > setposition[channal]) {
-            digitalWrite(rele1[channal], HIGH);
+    } else if (direct == E && positions[channel] != setposition[channel]) {
+        if (positions[channel] > setposition[channel]) {
+            digitalWrite(rele1[channel], HIGH);
             direct = W;
             lastDebounceTime1 = millis();
             rot = true;
         } else
-            digitalWrite(rele2[channal], HIGH);
+            digitalWrite(rele2[channel], HIGH);
         lastDebounceTime1 = millis();
         rot = true;
 
     } else {
         switch (button) {
         case 1:
-            digitalWrite(rele1[channal], HIGH);
+            digitalWrite(rele1[channel], HIGH);
             lastDebounceTime1 = millis();
             rot = true;
             break;
 
         case 2:
-            digitalWrite(rele2[channal], HIGH);
+            digitalWrite(rele2[channel], HIGH);
             lastDebounceTime1 = millis();
             rot = true;
             break;
         case 6:
-            digitalWrite(rele1[channal], HIGH);
+            digitalWrite(rele1[channel], HIGH);
             lastDebounceTime1 = millis();
             rot = true;
             break;
         case 7:
-            digitalWrite(rele2[channal], HIGH);
+            digitalWrite(rele2[channel], HIGH);
             lastDebounceTime1 = millis();
             rot = true;
             break;
@@ -669,7 +669,7 @@ void setDigit(int n) //devide number to units
             digit[3] = 10;
         else if (StorePostoRBut == true)
             digit[3] = 5;
-        else if (positions[channal] > 0) //for direction E, display symbol E at first position of segments display
+        else if (positions[channel] > 0) //for direction E, display symbol E at first position of segments display
             digit[3] = 11;
         else
             digit[3] = -1;
@@ -842,8 +842,8 @@ void flash() //save position to EEPROM after power lost
     }
 
     //Serial.println("zapisanie vo flash");
-    // positions[channal] = EEPROM.read(0);
-    // Serial.println(positions[channal]);
+    // positions[channel] = EEPROM.read(0);
+    // Serial.println(positions[channel]);
 
 }
 void Remote() { //Serial.println("ano");
@@ -869,28 +869,28 @@ void Remote() { //Serial.println("ano");
             for (int i = 0; i < 25; i++) {
                 if (StorePostoRBut == true) {
                     if (MyDecoder.value == code[i]) {
-                        if (positions[channal] <= 0) {
-                            pos[channal][i] = (positions[channal] * (-1));
+                        if (positions[channel] <= 0) {
+                            pos[channel][i] = (positions[channel] * (-1));
                             //Serial.println("Save");
-                            //Serial.println(pos[channal][i]);
-                            if (channal == 0) {
-                                EEPROM.update((i + 3), pos[channal][i]);
+                            //Serial.println(pos[channel][i]);
+                            if (channel == 0) {
+                                EEPROM.update((i + 3), pos[channel][i]);
                                 EEPROM.update((i + 33), 0);
-                            } else if (channal == 1) {
-                                EEPROM.update((i + 63), pos[channal][i]);
+                            } else if (channel == 1) {
+                                EEPROM.update((i + 63), pos[channel][i]);
                                 EEPROM.update((i + 93), 0);
                             }
                             StorePostoRBut = false;
                             MyReceiver.enableIRIn();
                         } else {
-                            pos[channal][i] = positions[channal];
+                            pos[channel][i] = positions[channel];
                             //  Serial.println("Save");
-                            // Serial.println(pos[channal][i]);
-                            if (channal == 0) {
-                                EEPROM.update((i + 33), pos[channal][i]);
+                            // Serial.println(pos[channel][i]);
+                            if (channel == 0) {
+                                EEPROM.update((i + 33), pos[channel][i]);
                                 EEPROM.update((i + 3), 0);
-                            } else if (channal == 1) {
-                                EEPROM.update((i + 93), pos[channal][i]);
+                            } else if (channel == 1) {
+                                EEPROM.update((i + 93), pos[channel][i]);
                                 EEPROM.update((i + 63), 0);
                             }
                         } //for testing, use position -> show resault on diplay, but normally we need here setpostion
@@ -901,20 +901,20 @@ void Remote() { //Serial.println("ano");
                     }
                 } else {
                     if (MyDecoder.value == code[i]) {
-                        if (pos[channal][i] < 0) {
-                            setposition[channal] = pos[channal][i];
+                        if (pos[channel][i] < 0) {
+                            setposition[channel] = pos[channel][i];
                             direct = W;
                             //Motor1();
-                            //n=((pos[channal][i]-128)*(-1));
+                            //n=((pos[channel][i]-128)*(-1));
                             //Serial.println("chod na");
-                            // Serial.println(setposition[channal]);
+                            // Serial.println(setposition[channel]);
                         } else {
-                            setposition[channal] = pos[channal][i];
+                            setposition[channel] = pos[channel][i];
                             direct = E;
                             // Motor1();
                             // Serial.println("chod na");
-                            // Serial.println(setposition[channal]);
-                            //n=pos[channal][i];
+                            // Serial.println(setposition[channel]);
+                            //n=pos[channel][i];
                         } //for testing, use position -> show resault on diplay, but normally we need here setpostion
 
                     }
@@ -931,28 +931,28 @@ void Remote() { //Serial.println("ano");
 
 }
 
-void Channal() {
-    if (channal == 0) {
+void channel() {
+    if (channel == 0) {
 
         n = 2;
-        channal = 1;
+        channel = 1;
         setDigit(n);
         while ((millis() - lastDebounceTime) < 1500) {}
 
-        //Serial.println(channal);
+        //Serial.println(channel);
         //Serial.println("zobrazenie");
-        n = positions[channal];
+        n = positions[channel];
         button = 0;
-    } else if (channal == 1) {
+    } else if (channel == 1) {
 
         n = 1;
-        channal = 0;
+        channel = 0;
         setDigit(n);
         while ((millis() - lastDebounceTime) < 1500) {}
 
-        //Serial.println(channal);
+        //Serial.println(channel);
         //Serial.println("zobrazenie");
-        n = positions[channal];
+        n = positions[channel];
         button = 0;
     }
 
@@ -963,17 +963,17 @@ void Error() {
     //digitalWrite(LED, HIGH);
     //Serial.println("Doraz-LOW!");
 
-    if (rot == 1 && digitalRead(doraz[channal]) == LOW) {
-        digitalWrite(rele1[channal], LOW);
-        digitalWrite(rele2[channal], LOW);
+    if (rot == 1 && digitalRead(doraz[channel]) == LOW) {
+        digitalWrite(rele1[channel], LOW);
+        digitalWrite(rele2[channel], LOW);
         digitalWrite(LED, HIGH);
         Serial.println(991);
-        //setposition[channal]=positions[channal];
+        //setposition[channel]=positions[channel];
         rot = 0;
         n = 1;
-    } else if (rot == 1 && digitalRead(doraz[channal]) == HIGH) {
-        digitalWrite(rele1[channal], LOW);
-        digitalWrite(rele2[channal], LOW);
+    } else if (rot == 1 && digitalRead(doraz[channel]) == HIGH) {
+        digitalWrite(rele1[channel], LOW);
+        digitalWrite(rele2[channel], LOW);
         digitalWrite(LED, HIGH);
         Serial.println(992);
         // Serial.println("HIGH!");
@@ -984,8 +984,8 @@ void Error() {
 
     if (button == 8) {
         Err = false;
-        setposition[channal] = positions[channal];
-        n = positions[channal];
+        setposition[channel] = positions[channel];
+        n = positions[channel];
         digitalWrite(LED, LOW);
         button = 0;
     }
@@ -994,20 +994,20 @@ void Error() {
 void EEPROMload() {
     if (EEPROM.read(30) == 0) {
         positions[1] = EEPROM.read(31);
-        n = positions[channal];
+        n = positions[channel];
         setposition[1] = positions[1];
     } else if (EEPROM.read(31) == 0) {
         positions[1] = (EEPROM.read(30)) * (-1);
-        n = positions[channal];
+        n = positions[channel];
         setposition[1] = positions[1];
     }
     if (EEPROM.read(0) == 0) {
         positions[0] = EEPROM.read(1);
-        n = positions[channal];
+        n = positions[channel];
         setposition[0] = positions[0];
     } else if (EEPROM.read(1) == 0) {
         positions[0] = (EEPROM.read(0)) * (-1);
-        n = positions[channal];
+        n = positions[channel];
         setposition[0] = positions[0];
     }
 
