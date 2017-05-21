@@ -419,32 +419,34 @@ void Seriall()
     byte j;
     byte i = 0;
     int number = 0;
-    char Buffer[14];
+    char Buffer[14] = {0};
     char command[11] = {0};
     //Serial.println(freeRam());
     //freeRam();
 
 
     j = Serial.readBytesUntil('\n',Buffer,14); //pocita pocet prijatych znakov po charakter znak + plny definovany buffer
-    //Serial.println(j);
-    for(; Buffer[i] == '_' || i > 13; i++) //this part find text part of command
+   
+    for(; Buffer[i] != '_' && i < 14; i++) //this part find text part of command
     {
         command[i] = Buffer[i];
         //Serial.println(command[i]);
+        
     }
-
-    //command[i] = '\0';
+    //Serial.println(i);
+    //Serial.println(Buffer[i]);
+    i++;
     for(; i < j; i++) //this part change char of array to int number in number part of command
     {
         //if(i<10)
         //command[i]='a';
         number = number * 10;
         number = number + (Buffer[i]-'0');
-        //Serial.println(otoc);
+        //Serial.println(number);
     }
     i = 0;
-    // Serial.println(command);
-    // Serial.println(number);
+    //Serial.println(command);
+    //Serial.println(number);
 
     if(strcmp(command, "setstep") == 0)
     {
